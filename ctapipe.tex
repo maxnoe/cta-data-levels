@@ -1,0 +1,171 @@
+\documentclass{standalone}
+
+\usepackage{fontspec}
+\setsansfont{Fira Sans}
+\renewcommand\familydefault\sfdefault
+\setmonofont{Fira Mono}[Scale=MatchLowercase]
+
+% TikZ
+\usepackage{tikz}
+\usetikzlibrary{
+    calc,
+    patterns,
+    quotes,
+    tikzmark,
+    angles,
+    decorations.pathreplacing,
+    fadings
+}
+\tikzset{fontscale/.style = {font=\relsize{#1}}}
+
+\usepackage{pgfplots}
+\usepackage{tikz-feynman}
+
+% math
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{xfrac}
+
+
+\usepackage[
+  mathrm=sym,
+  math-style=ISO,
+  bold-style=ISO,
+  sans-style=italic,
+  nabla=upright,
+  partial=upright,
+  warnings-off={
+    mathtools-colon,
+    mathtools-overbracket,
+  },
+]{unicode-math}
+
+\usepackage[
+  separate-uncertainty=true,
+  per-mode=symbol-or-fraction,
+]{siunitx}
+\sisetup{math-micro=\text{µ},text-micro=µ}
+
+% nice tables
+\usepackage{tabularray}
+
+% colors
+\usepackage{xcolor}
+\colorlet{maincolor}{gray}
+\xdefinecolor{tabblue}{HTML}{1f77b4}
+\xdefinecolor{taborange}{HTML}{ff7f0e}
+
+
+% custom commands
+\NewDocumentCommand\pipeleftarrow { m m m m } {
+    \pgfmathsetmacro{\arrowsc}{#3}
+    \coordinate (#4) at (#1 - 1.75*\arrowsc,#2 - 0.5*\arrowsc);
+
+    \draw[color=maincolor, fill=maincolor, rounded corners=0.8mm*\arrowsc] (#1,#2) --++(-2*\arrowsc,0) --++(0,0.5*\arrowsc)
+    --++(-1.5*\arrowsc,-1*\arrowsc) --++(1.5*\arrowsc,-1*\arrowsc) --++(0,0.5*\arrowsc) --++(2*\arrowsc,0) -- cycle;
+}
+
+\NewDocumentCommand\piperightarrow { m m m m } {
+    \pgfmathsetmacro{\arrowsc}{#3}
+    \coordinate (#4) at (#1 + 1.75*\arrowsc,#2 + 0.5*\arrowsc);
+
+    \draw[color=maincolor, fill=maincolor, rounded corners=0.8mm*\arrowsc] (#1,#2) --++(2*\arrowsc,0)
+    --++(0,-0.5*\arrowsc) --++(1.5*\arrowsc,1*\arrowsc) --++(-1.5*\arrowsc,1*\arrowsc) --++(0,-0.5*\arrowsc) --++(-2*\arrowsc,0) -- cycle;
+}
+
+\NewDocumentCommand\pipeuparrow { m m m m } {
+    \pgfmathsetmacro{\arrowsc}{#3}
+    \coordinate (#4) at (#1 -0.5*\arrowsc,#2 + 1.75*\arrowsc);
+
+    \draw[color=maincolor, fill=maincolor, rounded corners=0.8mm*\arrowsc] (#1,#2) --++(0,2*\arrowsc) --++(0.5*\arrowsc,0)
+    --++(-1*\arrowsc,1.5*\arrowsc) --++(-1*\arrowsc,-1.5*\arrowsc) --++(0.5*\arrowsc,0) --++(0,-2*\arrowsc) -- cycle;
+}
+
+\NewDocumentCommand\pipedownarrow { m m m m } {
+    \pgfmathsetmacro{\arrowsc}{#3}
+    \coordinate (#4) at (#1 + 0.5*\arrowsc,#2 - 1.75*\arrowsc);
+
+    \draw[color=maincolor, fill=maincolor, rounded corners=0.8mm*\arrowsc] (#1,#2) --++(0, -2*\arrowsc) --++(-0.5*\arrowsc,0)
+    --++(1*\arrowsc,-1.5*\arrowsc) --++(1*\arrowsc,1.5*\arrowsc) --++(-0.5*\arrowsc,0) --++(0,2*\arrowsc) -- cycle;
+}
+
+
+
+\begin{document}
+    \begin{tikzpicture}
+
+        % raw data plot
+        \node [] (RawGraph) at (0,0) {\includegraphics[height=2cm]{build/r0.pdf}};
+
+        % R0 node, arrow from raw data to r0
+        \node [thick, circle, draw, minimum size=0.2cm, inner sep=0.3cm, color=maincolor, label=center:\footnotesize \textcolor{maincolor}{R0}] (R0) at (RawGraph.south) {};
+        \piperightarrow{0.75}{-1.2}{0.2}{CalibArrow}
+        \node [below, color=maincolor, yshift=-3.5] (Calibration) at (CalibArrow.south) {\scriptsize Calibration};
+
+        % R1 node, R1 plot
+        \node [thick, circle, draw, minimum size=0.2cm, inner sep=0.3cm, color=maincolor, label=center:\footnotesize \textcolor{maincolor}{R1}] (R1) at (3, 1) {};
+        \node [] (CalibGraph) at (3.5, -0.5) {\includegraphics[height=2cm]{build/r1.pdf}};
+
+        % DVR arrow
+        \piperightarrow{4.5}{0}{0.2}{DVRArrow}
+        \node [above, color=maincolor, yshift=3.5] (DVR) at (DVRArrow.north) {\scriptsize Data Volume Reduction};
+
+        % DL0 plot, DL0 node
+        \node [] (DVRGraph) at (7, 0) {\includegraphics[height=2cm]{build/dl0.pdf}};
+        \node [thick, circle, draw, minimum size=0.2cm, inner sep=0.3cm, color=maincolor, label=center:\footnotesize \textcolor{maincolor}{DL0}] (DL0) at (DVRGraph.east) {};
+
+        % Pulse extraction arrow
+        \pipedownarrow{10}{0}{0.2}{PulseArrow}
+        \node [right, color=maincolor, xshift=3.5, align=left] (PulseExtraction) at (PulseArrow.east) {\scriptsize Pulse\\[-0.1cm] \scriptsize Extraction};
+
+        % Image cleaning arrow, DL1a node
+        \pipedownarrow{7}{-4}{0.2}{DL1Arrow}
+        \node [left, color=maincolor, xshift=-3.5] (DL1) at (DL1Arrow.west) {\scriptsize Image Cleaning};
+        \node [thick, circle, draw, minimum size=0.2cm, inner sep=0.3cm, color=maincolor, label=center:\footnotesize \textcolor{maincolor}{DL1a}, xshift=2.5cm, yshift=-0.1cm] (DL1a) at (DL1.east) {};
+
+        % Image plots
+        \node [xshift=2cm, yshift=1.4cm] (DL1Image) at (DL1.north) {\includegraphics[height=2.5cm]{build/dl1a.pdf}};
+        \node [xshift=1cm, yshift=-1.5cm] (DL1Cleaned) at (DL1.south) {\includegraphics[height=2.5cm]{build/dl1a_clean.pdf}};
+
+        % Parametrization arrow, DL1b node
+        \pipeleftarrow{3}{-6}{0.2}{ParamArrow}
+        \node [below, color=maincolor, yshift=-3.5] (Param) at (ParamArrow.south) {\scriptsize Parametrization};
+        \node [thick, circle, draw, minimum size=0.2cm, inner sep=0.3cm, color=maincolor, label=center:\footnotesize \textcolor{maincolor}{DL1b}] (DL1b) at (1, -6.25) {};
+
+        % Param table
+        \node [color=maincolor] (ParamTable) at (0.5,-5) {
+            \SetTblrInner{rowsep=-1cm, colsep=2pt}
+            \begin{tblr}{
+                colspec={rrrcr},
+                row{1-4}={font=\scriptsize\ttfamily},
+            }
+            event & width & length & \dots &  intensity \\
+                0 &  0.15 &   0.52 & \dots &  1253.1 \\
+                2 &  0.05 &   0.12 & \dots &   321.3 \\
+                5 &  0.08 &   0.19 & \dots &   512.7 \\
+            \end{tblr}
+        };
+
+        % Reconstruction arrow, DL2 node
+        \pipeuparrow{0.5}{-4.25}{0.2}{DL2Arrow}
+        \node [right, color=maincolor, xshift=3.5] (Reconstruction) at (DL2Arrow.east) {\scriptsize Reconstruction};
+        \node [thick, circle, draw, minimum size=0.2cm, inner sep=0.3cm, color=maincolor, label=center:\footnotesize \textcolor{maincolor}{DL2}, xshift=-0.75cm] (DL2) at (DL2Arrow.west) {};
+
+        % Reconstruction table
+        \node [color=maincolor] (ParamTable) at (1,-2.5) {
+            \SetTblrInner{rowsep=-1cm, colsep=2pt}
+            \begin{tblr}{
+                colspec={rrrrrr},
+                row{-}={font=\scriptsize\ttfamily},
+            }
+            event & energy & gammaness &    ra &    dec &        time \\
+                  &        &           &   deg &    deg &        mjd \\
+                0 &   1500 &      0.82 &  83.6 &   22.1 & 59024.63123 \\
+                2 &    400 &      0.73 &  83.5 &   21.9 & 59024.64183 \\
+                5 &    680 &      0.92 &  83.7 &   22.0 & 59024.67093 \\
+            \end{tblr}
+        };
+
+    \end{tikzpicture}
+\end{document}
