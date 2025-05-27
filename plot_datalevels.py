@@ -3,7 +3,7 @@ import numpy as np
 import astropy.units as u
 from scipy.fftpack import irfft
 from ctapipe.visualization import CameraDisplay
-from ctapipe.instrument import CameraGeometry
+from ctapipe.instrument import CameraGeometry, SubarrayDescription
 from ctapipe.coordinates import EngineeringCameraFrame
 from ctapipe.image.toymodel import SkewedGaussian
 from ctapipe.image.hillas import camera_to_shower_coordinates
@@ -85,7 +85,8 @@ hillas = dict(
 )
 
 
-cam = CameraGeometry.from_name('LSTCam').transform_to(EngineeringCameraFrame())
+subarray = SubarrayDescription.read("dataset://gamma_prod5.simtel.zst")
+cam = subarray.tel[1].camera.geometry.transform_to(EngineeringCameraFrame())
 longi, trans = camera_to_shower_coordinates(
     cam.pix_x, cam.pix_y, hillas['x'], hillas['y'], hillas['psi']
 )
