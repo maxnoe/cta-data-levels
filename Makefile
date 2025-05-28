@@ -7,7 +7,7 @@ PLOTS: build/r0.pdf \
 	build/dl1a_clean.pdf
 
 
-build/ctapipe.pdf: FORCE
+build/ctapipe.pdf: PLOTS FORCE
 	latexmk -lualatex -output-directory=build -halt-on-error -interaction=nonstopmode ctapipe.tex
 
 build/ctapipe.svg: build/ctapipe.pdf
