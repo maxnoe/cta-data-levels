@@ -11,7 +11,7 @@ build/ctapipe.pdf: PLOTS FORCE
 	latexmk -lualatex -output-directory=build -halt-on-error -interaction=nonstopmode ctapipe.tex
 
 build/ctapipe.svg: build/ctapipe.pdf
-	inkscape $< -o $@
+	inkscape --pdf-poppler $< -o $@
 
 build/r1.pdf build/dl0.pdf build/dl1a.pdf build/dl1a_clean.pdf: build/r0.pdf
 

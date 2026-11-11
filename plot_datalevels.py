@@ -31,13 +31,13 @@ def pink_noise(N, noise, amplitude):
 
 
 pixels = []
-for mean, amplitude in zip((15, 20), (5, 10)):
+for mean, amplitude in zip((15, 20, 0), (5, 10, 0)):
     x = np.arange(0, 60.1, 0.5)
     p = pulse(x, amplitude, mean, mean + 5, 2, 0.25)
     noise = pink_noise(len(x), 3, 1)
     pixels.append((p, noise))
 
-pixel_ids = (42, 314)
+pixel_ids = (42, 314, 271)
 
 
 fig = plt.figure(figsize=(3, 2), constrained_layout=True)
@@ -70,8 +70,9 @@ ax = fig.add_subplot(1, 1, 1)
 ax.set_xlabel('time / ns')
 ax.set_axis_off()
 
-waveform, noise = pixels[1]
-ax.plot(x, waveform + 0.2 * noise, label=f'Pixel {pixel_ids[1]}', color='C1')
+# DVR removes the noise-only pixel while retaining both Cherenkov pulses.
+for pix, (p, noise) in zip(pixel_ids[:2], pixels[:2]):
+    ax.plot(x, p + 0.2 * noise, label=f'Pixel {pix}')
 
 ax.legend(loc=(0.5, 0.6), frameon=False)
 
